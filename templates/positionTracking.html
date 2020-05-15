@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Position Tracking</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    {% load staticfiles %}
+    <!-- Bootstrap 3.3.7 -->
+    <link rel="stylesheet" href="{% static 'bower_components/bootstrap/dist/css/bootstrap.min.css' %}">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{% static 'bower_components/font-awesome/css/font-awesome.min.css' %}">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="{% static 'bower_components/Ionicons/css/ionicons.min.css' %}">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{% static 'dist/css/AdminLTE.min.css' %}">
+    <!-- AdminLTE Skins. Choose a skin from the css/skins
+         folder instead of downloading all of them to reduce the load. -->
+    <link rel="stylesheet" href="{% static 'dist/css/skins/_all-skins.min.css' %}">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="'https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Google Font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+
+    <style>
+        .text-button {
+            border: none;
+            background: inherit;
+            cursor: pointer;
+            color: darkgrey;
+            outline: none;
+        }
+        .text-button:hover {
+            color: black;
+        }
+    </style>
+
+</head>
+<body class="hold-transition skin-green-light" style="background: #f9fafc;">
+    <div class="wrapper">
+
+        <!-- Content Wrapper. Contains page content -->
+        <div>
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <h1 id="bigTitle">
+                    <small id="smallTitle"></small>
+                </h1>
+            </section>
+            <!-- Main content -->
+            <section class="content">
+                <div class="col-sm-4">
+                    <!-- Ride Info Box -->
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Real time tracking
+                            </h3>
+                        </div>
+                        <!-- /.box-header -->
+                        <div class="box-body direct-chat-messages" id="sideContent" style="height: 360px;">
+
+                        </div>
+                        <!-- /.box-body -->
+                    </div>
+                    <!-- /.box -->
+                </div>
+                <div class="col-sm-8" style="height: 400px">
+                        <div id="map" style="height: 100%"></div>
+                    </div>
+            </section>
+            <!-- /.content -->
+        </div>
+    </div>
+    <!-- ./wrapper -->
+
+    {% load staticfiles %}
+    <!-- jQuery 3 -->
+    <script src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
+    <!-- Bootstrap 3.3.7 -->
+    <script src="{% static 'bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+    <!-- FastClick -->
+    <script src="{% static 'bower_components/fastclick/lib/fastclick.js' %}"></script>
+    <!-- AdminLTE App -->
+    <script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+    <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+    <script src="{% static 'dist/js/pages/dashboard.js' %}"></script>
+
+    <script>
+        function initMap() {
+            var fromLatLng = new google.maps.LatLng({{ rideDetail.pr_fromLatitude }}, {{ rideDetail.pr_fromLongitude }});
+            var toLatLng = new google.maps.LatLng({{ rideDetail.pr_toLatitude }}, {{ rideDetail.pr_toLongitude }});
+            var bounds = new google.maps.LatLngBounds();
+            bounds.extend(fromLatLng)
+            bounds.extend(toLatLng)
+            var sideContent = "";
+            var pathArray = new Array();
+            var locationArray = new Array();
+
+            {% for key, value in locationTracking.items %}
+                var latLng = new google.maps.LatLng({{ value.latitude }}, {{ value.longitude }});
+                bounds.extend(latLng);
+                sideContent += "<p>\n" +
+                    "<small class=\"text-muted pull-right\">{{ value.trackingDatetime }}</small>\n" +
+                    "Latitude: {{ value.latitude }}, Longitude: {{ value.longitude }}\n" +
+                    "</p>" +
+                    "<hr>";
+                pathArray.push({lat:{{ value.latitude }}, lng:{{ value.longitude }}});
+                locationArray.push({datatime:"{{ value.trackingDatetime }}", position: latLng});
+            {% endfor %}
+            $('#sideContent').html(sideContent);
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: bounds.getCenter(),
+
+            });
+
+            var positionMarker;
+            var infowindow = new google.maps.InfoWindow();
+            for (i = 0; i < locationArray.length; i++) {
+                positionMarker = new google.maps.Marker({
+                    position: locationArray[i].position,
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 8.5,
+                        fillColor: "#F00",
+                        fillOpacity: 0.4,
+                        strokeWeight: 0.4
+                    },
+                    map: map
+                });
+
+                google.maps.event.addListener(positionMarker, 'click', (function(marker, i) {
+                    return function() {
+                        infowindow.setContent(locationArray[i].datatime);
+                        infowindow.open(map, marker);
+                    }
+                })(positionMarker, i));
+            }
+            map.fitBounds(bounds)
+            symbol = {
+                path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                scale: 3,
+                strokeColor: '#000000'
+            };
+            var path = new google.maps.Polyline({
+                path: pathArray,
+                geodesic: true,
+                strokeColor: '#FF0000',
+                strokeOpacity: 1.0,
+                strokeWeight: 2,
+                icons: [{
+                    icon: symbol,
+                    offset: '0%'
+                }]
+            });
+            path.setMap(map);
+            animateCircle(path);
+
+            var fromMarker = new google.maps.Marker({
+                position: fromLatLng,
+                icon: 'static/image/ic_drive.png',
+                map: map,
+                title: "Drive from",
+                animation: google.maps.Animation.DROP
+            });
+            var toMarker = new google.maps.Marker({
+                position: toLatLng,
+                map: map,
+                title: "Destination",
+                animation: google.maps.Animation.DROP
+            });
+        }
+
+        function animateCircle(line) {
+            var count = 0;
+            var icons = line.get('icons');
+            window.setInterval(function() {
+                count = (count + 1) % 200;
+                icons[0].offset = (count / 2) + '%';
+                line.set('icons', icons);
+            }, 20);
+        }
+    </script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtR9CsyJmTcuV9aTXaX03FcZByWgLOweA&callback=initMap"
+    async defer></script>
+
+</body>
+</html>

@@ -1,0 +1,743 @@
+{% extends "baseFrame.html" %}
+{% load static %}
+{% block content %}
+
+    <style>
+        .text-button {
+            border: none;
+            background: inherit;
+            cursor: pointer;
+            color: darkgrey;
+            outline: none;
+        }
+        .text-button:hover {
+            color: black;
+        }
+
+        .nav-tabs-custom>.nav-tabs>li.active {
+            border-top-color: #00a65a;
+        }
+    </style>
+
+    <!-- Main content -->
+    <section class="content">
+
+        <div class="row">
+
+            <div class="col-md-3">
+
+                <!-- Profile Image -->
+                <div class="box box-solid  ">
+                    <div class="box-body box-profile">
+                        <img class="profile-user-img img-responsive img-circle" style="height:100px;"
+                             {% if user.user_profilePicSrc == "" or None  %}
+                                src="{% static 'image/img_default_profile_pic.png' %}"
+                             {% else %}
+                                src="{{ user.user_profilePicSrc | safe }}"
+                             {% endif %}
+                             alt="User profile picture">
+
+                        <h3 class="profile-username text-center">{{ user.user_profileName | safe }}</h3>
+
+                        <p class="text-muted text-center">{{ user.user_email | safe }}</p>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+
+                <!-- User Info Box -->
+                <div class="box box-success collapsed-box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">User Info</h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <strong><i class="fa fa-user margin-r-5"></i> Fullname</strong>
+
+                        {% if user.user_verifMatrixStatus == None or user.user_verifMatrixStatus == 1 %}
+                            <p class="text-yellow">Unverified</p>
+                        {% else %}
+                            <p class="text-muted">{{ user.user_fullName | safe }} &nbsp;</p>
+                        {% endif %}
+
+                        <hr>
+
+                        <strong><i class="fa fa-mortar-board margin-r-5"></i> Matrix/staff number</strong>
+
+                        {% if user.user_verifMatrixStatus == None or user.user_verifMatrixStatus == 1 %}
+                            <p class="text-yellow">Unverified</p>
+                        {% else %}
+                            <p class="text-muted">
+                                {{ user.user_matrixNo | safe }} &nbsp;
+                                {% if user.user_verifMatrixStatus == None %}
+                                    <button class="text-button pull-right" data-toggle="modal" data-target="#modal-verification-image"
+                                                onclick="createModalVerificationImage('{{ user.user_verifMatrixSrc | safe  }}');">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
+                                {% endif %}
+                            </p>
+                        {% endif %}
+
+                        <hr>
+
+                        <strong><i class="fa fa-car margin-r-5"></i> License number</strong>
+
+                        {% if user.user_verifLicenseStatus == None or user.user_verifLicenseStatus == 1 %}
+                            <p class="text-yellow">Unverified</p>
+                        {% else %}
+                            <p class="text-muted">
+                                {{ user.user_licenseNo | safe }} &nbsp;
+                                {% if user.user_verifLicenseStatus == None %}
+                                    <button class="text-button pull-right" data-toggle="modal" data-target="#modal-verification-image"
+                                                onclick="createModalVerificationImage('{{ user.user_verifLicenseSrc | safe  }}');">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
+                                {% endif %}
+                            </p>
+                        {% endif %}
+
+                        <hr>
+
+                        <strong><i class="fa fa-phone margin-r-5"></i> Phone number</strong>
+
+                        <p class="text-muted">
+                            {{ user.user_phoneNo | safe }}
+                        </p>
+
+                        <hr>
+
+                        <strong><i class="fa  fa-venus-mars margin-r-5"></i> Gender</strong>
+
+                        <p class="text-muted">
+                            {{ user.user_gender | safe }}
+                        </p>
+
+                        <hr>
+
+                        <strong><i class="fa fa-pencil margin-r-5"></i> Signature</strong>
+
+                        <p class="text-muted">
+                            {{ user.user_signature }}
+                        </p>
+
+                        <hr>
+
+                        <strong><i class="fa fa-calendar margin-r-5"></i> Joined on</strong>
+
+                        <p class="text-muted">
+                            {{ user.registerDatetime }}
+                        </p>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+
+                <!-- Registered Vehicle Box -->
+                <div class="box box-default collapsed-box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Registered Vehicle</h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        {% if userVehicles %}
+                            {% for key, value in userVehicles.items %}
+                                <p>
+                                    <button class="text-button" data-toggle="modal" data-target="#modal-vehicle-info"
+                                            onclick="createModalVehicleInfo('{{ key | safe  }}',{{ value |safe }});">
+                                        {{ key | safe }}
+                                    </button>
+                                </p>
+                                <hr>
+                            {% endfor %}
+                        {% else %}
+                            <p>Empty List</p>
+                        {% endif %}
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+
+                <!-- Emergency Contact Box -->
+                <div class="box box-danger collapsed-box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Emergency Contact</h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        {% if emergencyContacts %}
+                            {% for key, value in emergencyContacts.items %}
+                                <p>{{ key }}</p><hr>
+                            {% endfor %}
+                        {% else %}
+                            <p>Empty List</p>
+                        {% endif %}
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+            <!-- /.col -->
+            <div class="col-md-9">
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="box box-solid">
+                            <div class="box-body ">
+                                <div id="donut-chart" style="height: 170px;"></div>
+                                <h1 id="donutNoData" style="position: absolute; top:30%; left: 35%; color: lightgrey" hidden>No data</h1>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="box box-solid">
+                            <div class="box-body ">
+                                <div class="chart">
+                                    <div class="chart" id="bar-chart" style="height: 170px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="nav-tabs-custom">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#tabActivity" data-toggle="tab"><i class="fa fa-bullhorn"></i> Activity</a></li>
+                        <li><a href="#tabRatingReview" data-toggle="tab"><i class="fa fa-star"></i> Rating Review</a></li>
+                    </ul>
+
+                <div class="tab-content" style="margin-top:10px">
+
+                    <!-- Tab Activity Content-->
+                    <div class="tab-pane active" id="tabActivity">
+
+                        <ul class="timeline timeline-inverse">
+                            {% for key, value in userRelatedRides.items %}
+                                <!-- timeline item -->
+                                <li class="timeline-content" style="display:none;">
+                                    {% if value.userRole == "driver" %}
+                                        <i class="fa fa-car bg-blue"></i>
+
+                                        <div class="timeline-item">
+                                            <span class="time"><i class="fa fa-clock-o"></i> {{ value.userTriggerDatetime }}</span>
+
+                                            <h3 class="timeline-header">
+                                                <span style="font-weight: bold;">{{ user.user_profileName | safe }}</span>
+                                                created a <a href="javascript:void(0)" onclick="viewRide('{{ key }}')">ride</a>
+                                            </h3>
+
+                                            <div class="timeline-body">
+                                                <p>From: {{ value.pr_fromPlace }}</p>
+                                                <p>To: {{ value.pr_toPlace }}</p>
+                                                <p>Depart on: {{ value.departDatetime }}</p>
+                                            </div>
+                                            <div class="timeline-footer">
+                                                {% if value.pr_status == 1 %}
+                                                    <span class="label label-info">Open</span>
+                                                {% elif value.pr_status == 2 %}
+                                                    <span class="label label-default">Canceled</span>
+                                                {% elif value.pr_status == 5 %}
+                                                    <span class="label label-success">Completed</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                        {% if value.userRole == "carpooler" %}
+                                            <i class="fa fa-users bg-yellow"></i>
+
+                                            <div class="timeline-item">
+                                                <span class="time"><i class="fa fa-clock-o"></i> {{ value.userTriggerDatetime }}</span>
+
+                                                <h3 class="timeline-header">
+                                                    <span style="font-weight: bold;">{{ user.user_profileName | safe }}</span>
+                                                     requested for a shared <a href="javascript:void(0)" onclick="viewRide('{{ key }}')">ride</a>
+                                                </h3>
+
+                                                <div class="timeline-body">
+                                                    <p>From: {{ value.pr_fromPlace }}</p>
+                                                    <p>To: {{ value.pr_toPlace }}</p>
+                                                    <p>Depart on: {{ value.departDatetime }}</p>
+                                                </div>
+                                                <div class="timeline-footer">
+                                                    {% if value.userStatus == 1 %}
+                                                        <span class="label label-info">Requested</span>
+                                                    {% elif value.userStatus == 2 %}
+                                                        <span class="label label-default">Canceled</span>
+                                                    {% elif value.userStatus == 3 %}
+                                                        <span class="label label-primary">Accepted</span>
+                                                    {% elif value.userStatus == 4 %}
+                                                        <span class="label label-warning">Declined</span>
+                                                    {% elif value.userStatus == 5 %}
+                                                        <span class="label label-success">Completed</span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </li>
+                                <!-- END timeline item -->
+                            {% endfor %}
+                            <li class="timeline-content" style="display:none;">
+                                <i class="fa fa-user-plus bg-navy"></i>
+
+                                <div class="timeline-item">
+                                    <span class="time"><i class="fa fa-clock-o"></i> {{ user.registerDatetime }}</span>
+
+                                    <h3 class="timeline-header">
+                                        <span style="font-weight: bold;">{{ user.user_profileName | safe }}</span>
+                                         joined RideS
+                                    </h3>
+                                </div>
+                            </li>
+                            <li>
+                                <a href="#" id="loadMoreActivity"style="left: 47%; position: absolute;">
+                                    Load more
+                                    <span class="fa fa-angle-down"></span>
+                                </a>
+                            </li>
+                            <li>
+                                <i class="fa fa-clock-o bg-gray"></i>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- End of Tab Activity Content-->
+
+                    <!-- Tab Rating Review Content-->
+                    <div class="tab-pane" id="tabRatingReview">
+                        <div class="row">
+                            <div class="col-xs-4 col-md-2 text-center">
+                                <div style="display:inline;width:90px;height:90px;">
+
+                                    <input id = "totalFiveStar" type="text" class="knob" value="{{ statusFiveStar.percent }}" data-width="90"
+                                           data-height="90" data-fgcolor="#009624" style="width: 49px;
+                                           height: 30px; position: absolute; vertical-align: middle;
+                                           margin-top: 30px; margin-left: -69px; border: 0px; background: none;
+                                           font: bold 18px Arial; text-align: center; color: #009624;
+                                           padding: 0px; -webkit-appearance: none;" readonly>
+
+                                </div>
+                                <div class="knob-label">
+                                    <i class="fa fa-star" style="color: orange"></i>
+                                    <i class="fa fa-star" style="color: orange"></i>
+                                    <i class="fa fa-star" style="color: orange"></i>
+                                    <i class="fa fa-star" style="color: orange"></i>
+                                    <i class="fa fa-star" style="color: orange"></i>
+                                </div>
+                            </div>
+                            <div class="col-xs-4 col-md-2 text-center">
+                                <div style="display:inline;width:90px;height:90px;">
+
+                                    <input id = "totalFourStar" type="text" class="knob" value="{{ statusFourStar.percent }}" data-width="90"
+                                           data-height="90" data-fgcolor="#aeea00" style="width: 49px;
+                                           height: 30px; position: absolute; vertical-align: middle;
+                                           margin-top: 30px; margin-left: -69px; border: 0px; background: none;
+                                           font: bold 18px Arial; text-align: center; color: #aeea00;
+                                           padding: 0px; -webkit-appearance: none;" readonly>
+
+                                </div>
+                                <div class="knob-label">
+                                    <i class="fa fa-star" style="color: orange"></i>
+                                    <i class="fa fa-star" style="color: orange"></i>
+                                    <i class="fa fa-star" style="color: orange"></i>
+                                    <i class="fa fa-star" style="color: orange"></i>
+                                </div>
+                            </div>
+                            <div class="col-xs-4 col-md-2 text-center">
+                                <div style="display:inline;width:90px;height:90px;">
+
+                                    <input id = "totalThreeStar" type="text" class="knob" value="{{ statusThreeStar.percent }}" data-width="90"
+                                           data-height="90" data-fgcolor="#ffff00" style="width: 49px;
+                                           height: 30px; position: absolute; vertical-align: middle;
+                                           margin-top: 30px; margin-left: -69px; border: 0px; background: none;
+                                           font: bold 18px Arial; text-align: center; color: #ffff00;
+                                           padding: 0px; -webkit-appearance: none;" readonly>
+
+                                </div>
+                                <div class="knob-label">
+                                    <i class="fa fa-star" style="color: orange"></i>
+                                    <i class="fa fa-star" style="color: orange"></i>
+                                    <i class="fa fa-star" style="color: orange"></i>
+                                </div>
+                            </div>
+                            <div class="col-xs-4 col-md-2 text-center">
+                                <div style="display:inline;width:90px;height:90px;">
+
+                                    <input id = "totalTwoStar" type="text" class="knob" value="{{ statusTwoStar.percent }}" data-width="90"
+                                           data-height="90" data-fgcolor="#ffab00" style="width: 49px;
+                                           height: 30px; position: absolute; vertical-align: middle;
+                                           margin-top: 30px; margin-left: -69px; border: 0px; background: none;
+                                           font: bold 18px Arial; text-align: center; color: #ffab00;
+                                           padding: 0px; -webkit-appearance: none;" readonly>
+
+                                </div>
+                                <div class="knob-label">
+                                    <i class="fa fa-star" style="color: orange"></i>
+                                    <i class="fa fa-star" style="color: orange"></i>
+                                </div>
+                            </div>
+                            <div class="col-xs-4 col-md-2 text-center">
+                                <div style="display:inline;width:90px;height:90px;">
+
+                                    <input id = "totalOneStar" type="text" class="knob" value="{{ statusOneStar.percent }}" data-width="90"
+                                           data-height="90" data-fgcolor="#ff5722" style="width: 49px;
+                                           height: 30px; position: absolute; vertical-align: middle;
+                                           margin-top: 30px; margin-left: -69px; border: 0px; background: none;
+                                           font: bold 18px Arial; text-align: center; color: #ff5722;
+                                           padding: 0px; -webkit-appearance: none;" readonly>
+
+                                </div>
+                                <div class="knob-label">
+                                    <i class="fa fa-star" style="color: orange"></i>
+                                </div>
+                            </div>
+                            <div class="col-xs-4 col-md-2 text-center">
+                                <div style="display:inline;width:90px;height:90px;">
+
+                                    <span style="font-size: 66px; font-weight: bold;">{{ avgRatingPoint | floatformat:1 }}</span>
+
+                                </div>
+                                <div class="knob-label">Average</div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <ul class="products-list product-list-in-box">
+                            {% for key, val in userRatingReviews.items %}
+                                <li class="item rrItem" hidden>
+                                    <div class="product-img">
+                                        <img class="direct-chat-img" alt="User image"
+                                             {% if not val.raterProfileImageSrc %}
+                                                src="{% static 'image/img_default_profile_pic.png' %}"
+                                             {% else %}
+                                                src="{{ val.raterProfileImageSrc | safe }}"
+                                             {% endif %}
+                                        >
+                                    </div>
+                                    <div class="product-info">
+                                        <a href="javascript:void(0)" class="product-title">{{ val.raterProfileName }}</a>
+                                        <small class="pull-right text-muted">{{ val.rateDatetime }}</small><br>
+                                            {% for i in val.starLoopYellow %}
+                                                <i class="fa fa-star" style="color: orange"></i>
+                                            {% endfor %}
+                                            {% for i in val.starLoopGrey %}
+                                                <i class="fa fa-star" style="color: lightgrey"></i>
+                                            {% endfor %}
+                                        <p class="text-muted">
+                                            {{ val.rr_review }}
+                                        </p>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                            <li class="item" style="padding-bottom: 20px;">
+                                <a href="#" id="loadMoreRatingReview"style="left: 47%; position: absolute;">
+                                    Load more
+                                    <span class="fa fa-angle-down"></span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- End of Tab Rating Review Content-->
+
+                </div>
+            </div>
+            <!-- /.col -->
+        </div>
+
+        </div>
+        <!-- /.row -->
+
+        <!-- Modal Verification Image -->
+        <div class="modal fade" id="modal-verification-image">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="box-body box-profile">
+                                    <p>
+                                        <img class='center-block' id="img_verification" border='15px' width="300px" height="200px">
+                                        <img id="imgVerification_loading_gif" src="static/image/loading_gif.gif" width="40px" height="40px"
+                                             style="position: absolute; top: 35%; left: 47%;" hidden/>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <!-- /.modal -->
+
+        <!-- Modal Vehicle Info -->
+        <div class="modal fade" id="modal-vehicle-info">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title">Vehicle Info</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p>
+                                    <img class='center-block' id="img_vehicle" border='15px' style="max-width: 93%; max-height: 93%;">
+                                    <img id="imgVehicle_loading_gif" src="static/image/loading_gif.gif" width="40px" height="40px"
+                                         style="position: absolute; margin-top:15%; left: 47%;" hidden/>
+                                </p>
+
+                            </div>
+                            <div class="col-md-6">
+                                <div class="box box-solid">
+                                    <div class="box-body">
+                                        <p><b>Plate Number</b> <a class="pull-right" id="modal_vehicle_plateNo"></a></p>
+                                        <p><b>Model</b> <a class="pull-right" id="modal_vehicle_model"></a></p>
+                                        <p><b>Color</b> <a class="pull-right" id="modal_vehicle_color"></a></p>
+                                        <p><b>Capacity</b> <a class="pull-right" id="modal_vehicle_capacity"></a></p>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <!-- /.modal -->
+
+    </section>
+    <!-- /.content -->
+
+{% endblock content %}
+
+{% block pageJs %}
+
+    {% load staticfiles %}
+
+    <script src={% static 'bower_components/Flot/jquery.flot.js' %}></script>
+    <script src={% static 'bower_components/Flot/jquery.flot.resize.js' %}></script>
+    <script src={% static 'bower_components/Flot/jquery.flot.pie.js' %}></script>
+    <script src={% static 'bower_components/Flot/jquery.flot.categories.js' %}></script>
+    <script src={% static 'bower_components/chart.js/Chart.js' %}></script>
+
+    <script>
+        $(document).ready(function() {
+            document.title = 'RideS Admin | {{ user.user_profileName }}'
+            $("#sideUserVerification").removeClass("active");
+            $("#sideDashboard").removeClass("active");
+            $("#sideUser").addClass("active");
+            $("#sideRide").removeClass("active");
+            $(function () {
+                $(".timeline-content").slice(0, 3).show();
+                if ($(".timeline-content:hidden").length == 0) {
+                    $("#loadMoreActivity").hide();
+                }
+                $("#loadMoreActivity").on('click', function (e) {
+                    e.preventDefault();
+                    $(".timeline-content:hidden").slice(0, 5).slideDown();
+                    if ($(".timeline-content:hidden").length == 0) {
+                        $("#loadMoreActivity").fadeOut('slow');
+                    }
+                    $('html,body').animate({
+                        scrollTop: $(this).offset().top
+                    }, 1500);
+
+                });
+            });
+
+            initRatingKnob();
+            $(function () {
+                $(".rrItem").slice(0, 5).show();
+                if ($(".rrItem:hidden").length == 0) {
+                    $("#loadMoreRatingReview").hide();
+                }
+                $("#loadMoreRatingReview").on('click', function (e) {
+                    e.preventDefault();
+                    $(".rrItem:hidden").slice(0, 5).slideDown();
+                    if ($(".rrItem:hidden").length == 0) {
+                        $("#loadMoreRatingReview").fadeOut('slow');
+                    }
+                    $('html,body').animate({
+                        scrollTop: $(this).offset().top
+                    }, 1500);
+
+                });
+            });
+
+            $(function () {
+                /*
+                 * DONUT CHART
+                 * -----------
+                 */
+                var rideCompleted = {{ rideCompleted }};
+                var incompleteRide = {{ incompleteRide }};
+                var donutData = [
+                    { label: 'Completed', data: rideCompleted, color: '#58D68D' },
+                    { label: 'Incomplete', data: incompleteRide, color: '#FF9671' }
+                ];
+                $.plot('#donut-chart', donutData, {
+                    series: {
+                        pie: {
+                            show: true,
+                            radius: 1,
+                            innerRadius: 0.5,
+                            label: {
+                                show: true,
+                                radius: 2 / 3,
+                                formatter: labelFormatter,
+                                threshold: 0.1
+                            }
+                        }
+                    },
+                    legend: {
+                        show: true
+                    }
+                });
+                if(rideCompleted == 0 && incompleteRide == 0 ){
+                    $("#donutNoData").show();
+                }
+                /*
+                 * END DONUT CHART
+                 */
+
+                //BAR CHART
+                var bar = new Morris.Bar({
+                    element: 'bar-chart',
+                    resize: true,
+                    data: [
+                        {% for key, val in userLatestThreeMonthSummary.items %}
+                            {y: "{{ key }}", a: {{ val.0 }}, b: {{ val.1 }}},
+                        {% endfor %}
+                    ],
+                    barColors: ['#5DADE2', '#F4D03F'],
+                    xkey: 'y',
+                    ykeys: ['a', 'b'],
+                    labels: ['Providing', 'Sharing'],
+                    hideHover: 'auto',
+                    axes: true
+                });
+
+            });
+        });
+
+        function initRatingKnob(){
+            $('#totalOneStar').val({{ statusOneStar.count }});
+            $('#totalTwoStar').val({{ statusTwoStar.count }});
+            $('#totalThreeStar').val({{ statusThreeStar.count }});
+            $('#totalFourStar').val({{ statusFourStar.count }});
+            $('#totalFiveStar').val({{ statusFiveStar.count }});
+        }
+
+        function createModalVehicleInfo(plateNo, vehicleDetail) {
+            $('#imgVehicle_loading_gif').show();
+            $('#img_vehicle').attr('src', vehicleDetail.vehicle_imageSrc);
+            $('#img_vehicle').on('load', function(){
+                $('#imgVehicle_loading_gif').hide();
+            });
+            $('#modal_vehicle_plateNo').html(plateNo);
+            $('#modal_vehicle_model').html(vehicleDetail.vehicle_model);
+            $('#modal_vehicle_color').html(vehicleDetail.vehicle_color);
+            $('#modal_vehicle_capacity').html(vehicleDetail.vehicle_capacity);
+        }
+
+        function viewRide(rideId) {
+            var url = 'rideDetail?rideId=' + rideId;
+            window.location.href = url;
+        }
+
+        /* jQueryKnob */
+        $(function(){
+
+            $(".knob").knob({
+                /*change : function (value) {
+                    //console.log("change : " + value);
+                },
+                release : function (value) {
+                    console.log("release : " + value);
+                },
+                cancel : function () {
+                    console.log("cancel : " + this.value);
+                },*/
+                draw: function () {
+
+                    // "tron" case
+                    if (this.$.data('skin') == 'tron') {
+
+                        var a = this.angle(this.cv)  // Angle
+                        , sa = this.startAngle          // Previous start angle
+                        , sat = this.startAngle         // Start angle
+                        , ea                            // Previous end angle
+                        , eat = sat + a                 // End angle
+                        , r = true;
+
+                        this.g.lineWidth = this.lineWidth;
+
+                        this.o.cursor
+                            && (sat = eat - 0.3)
+                            && (eat = eat + 0.3);
+
+                        if (this.o.displayPrevious) {
+                            ea = this.startAngle + this.angle(this.value);
+                            this.o.cursor
+                            && (sa = ea - 0.3)
+                            && (ea = ea + 0.3);
+                            this.g.beginPath();
+                            this.g.strokeStyle = this.previousColor;
+                            this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, sa, ea, false);
+                            this.g.stroke();
+                        }
+
+                        this.g.beginPath();
+                        this.g.strokeStyle = r ? this.o.fgColor : this.fgColor;
+                        this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, sat, eat, false);
+                        this.g.stroke();
+
+                        this.g.lineWidth = 2;
+                        this.g.beginPath();
+                        this.g.strokeStyle = this.o.fgColor;
+                        this.g.arc(this.xy, this.xy, this.radius - this.lineWidth + 1 + this.lineWidth * 2 / 3, 0, 2 * Math.PI, false);
+                        this.g.stroke();
+
+                        return false;
+                    }
+                }
+            });
+        });
+        /* END JQUERY KNOB */
+
+        function labelFormatter(label, series) {
+            return '<div style="font-size:13px; text-align:center; padding:2px; color: #fff; font-weight: 600;">'
+                + Math.round(series.percent) + '%</div>'
+        }
+
+        function createModalVerificationImage(imageSrc) {
+            $('#imgVerification_loading_gif').show();
+            $('#img_verification').attr('src', imageSrc);
+            $('#img_verification').on('load', function () {
+                $('#imgVerification_loading_gif').hide();
+            });
+        }
+
+    </script>
+
+{% endblock pageJs %}

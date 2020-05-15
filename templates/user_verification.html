@@ -1,0 +1,355 @@
+{% extends "baseFrame.html" %}
+{% block content %}
+    <style>
+        .example-modal .modal {
+          position: relative;
+          top: auto;
+          bottom: auto;
+          right: auto;
+          left: auto;
+          display: block;
+          z-index: 1;
+        }
+
+        .example-modal .modal {
+          background: transparent !important;
+        }
+      </style>
+    <!-- Main content -->
+    <section class="content">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <div class="box-header">
+                      <h3 class="box-title">Pending Verification</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <table id="userVerifTable" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Profile Name</th>
+                                    <th>Full Name</th>
+                                    <th>Matrix/Staff Number</th>
+                                    <th style="width:200px">Verification</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-content">
+
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+        <div class="modal fade" id="modal-matrix">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title">Identity Verification</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="box-body box-profile">
+                                    <p>
+                                        <img class='center-block' id="img_matrix" border='15px' width="300px" height="200px">
+                                        <img id="imgMatrix_loading_gif" src="static/image/loading_gif.gif" width="40px" height="40px" style="position: absolute; top: 20%; left: 47%;" hidden/>
+                                    </p>
+
+                                    <ul class="list-group list-group-unbordered">
+                                        <li class="list-group-item">
+                                            <b>Profile Name</b> <a class="pull-right" id="modal_matrix_profileName"></a>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <b>Full Name</b> <a class="pull-right" id="modal_matrix_fullName"></a>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <b>Matrix/Staff No.</b> <a class="pull-right" id="modal_matrix_matrixNo"></a>
+                                        </li>
+                                    </ul>
+                                    <div class="row">
+                                        <div id="matrixBtnWrapper">
+                                            <div class='col-lg-2'></div>
+                                            <div class='col-lg-4'><button type="button" class="btn btn-block btn-danger" id="btnMatrixReject">Reject</button><br></div>
+                                            <div class='col-lg-4'><button type="button" class="btn btn-block btn-success" id="btnMatrixVerify">Verify</button></div>
+                                            <div class='col-lg-2'></div>
+                                        </div>
+                                        <div class="alert alert-danger" id="rejectedAlertMatrix" hidden>
+                                            <i class="icon fa fa-ban"></i> Rejected
+                                        </div>
+                                        <div class="alert alert-success" id="verifiedAlertMatrix" hidden>
+                                            <i class="icon fa fa-check"></i> Verified
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <!-- /.modal -->
+
+        <div class="modal fade" id="modal-license">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title">License Verification</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="box-body box-profile">
+                                    <p>
+                                        <img class='center-block' id="img_license" border='15px' width="300px" height="200px">
+                                        <img id="imgLicense_loading_gif" src="static/image/loading_gif.gif" width="40px" height="40px" style="position: absolute; top: 20%; left: 47%;" hidden/>
+                                    </p>
+
+                                    <ul class="list-group list-group-unbordered">
+                                        <li class="list-group-item">
+                                            <b>Profile Name</b> <a class="pull-right" id="modal_license_profileName"></a>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <b>Full Name</b> <a class="pull-right" id="modal_license_fullName"></a>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <b>License No.</b> <a class="pull-right" id="modal_license_licenseNo"></a>
+                                        </li>
+                                    </ul>
+                                    <div class="row">
+                                        <div id="licenseBtnWrapper">
+                                            <div class='col-lg-2'></div>
+                                            <div class='col-lg-4'><button type="button" class="btn btn-block btn-danger" id="btnLicenseReject">Reject</button></div>
+                                            <div class='col-lg-4'><button type="button" class="btn btn-block btn-success" id="btnLicenseVerify">Verify</button></div>
+                                            <div class='col-lg-2'></div>
+                                        </div>
+                                        <div class="alert alert-danger" id="rejectedAlertLicense" hidden>
+                                            <i class="icon fa fa-ban"></i> Rejected
+                                        </div>
+                                        <div class="alert alert-success" id="verifiedAlertLicense" hidden>
+                                            <i class="icon fa fa-check"></i> Verified
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <!-- /.modal -->
+    </section>
+    <!-- /.content -->
+{% endblock content %}
+
+{% block pageJs %}
+    <script>
+        initList();
+        $(document).ready(function() {
+            $('#bigTitle').html("User Verification<small>({{ pendingVerifs | length }} pending verifications)</small>");
+            document.title = 'RideS Admin | User Verification'
+            $( "#sideUserVerification" ).addClass( "active" );
+            $( "#sideDashboard" ).removeClass( "active" );
+            $( "#sideUser" ).removeClass( "active" );
+            $( "#sideRide" ).removeClass( "active" );
+        });
+
+        $(function () {
+            $('#example1').DataTable()
+            $('#userVerifTable').DataTable({
+              'paging'      : true,
+              'lengthChange': true,
+              'searching'   : true,
+              'ordering'    : true,
+              'info'        : true,
+              'autoWidth'   : false
+            });
+        });
+
+        function initList(){
+            {% for key, value in pendingVerifs.items %}
+                var button = "";
+                {% if  value.user_verifMatrixStatus != None and value.user_verifMatrixStatus  == 1%}
+                    button += '<div class=col-xs-6><button type="button" class="btn btn-block btn-warning btn-sm" id="btnMatrix{{ key | safe}}" data-toggle="modal" data-target="#modal-matrix" ' +
+                      'onclick="createModalMatrix( \'{{ key | safe}}\', \'{{ value.user_profileName | safe}}\', \'{{ value.user_fullName | safe}}\', \'{{ value.user_matrixNo | safe}}\', \'{{ value.user_verifMatrixSrc | safe}}\' )">Matrix/Staff</button></div>';
+
+                        {% if  value.user_verifLicenseStatus != None and value.user_verifLicenseStatus == 1%}
+                            button += '<div class=col-xs-6><button type="button" class="btn btn-block btn-info btn-sm" id="btnLicense{{ key | safe}}" data-toggle="modal" data-target="#modal-license"' +
+                                'onclick="createModalLicense( \'{{ key | safe}}\', \'{{ value.user_profileName | safe}}\', \'{{ value.user_fullName | safe}}\', \'{{ value.user_licenseNo | safe}}\', \'{{ value.user_verifLicenseSrc | safe}}\' )">License</button></div>';
+                        {% endif %}
+
+                {% elif  value.user_verifLicenseStatus != None and value.user_verifLicenseStatus == 1%}
+                        button += '<div class=col-xs-6></div><div class=col-xs-6><button type="button" class="btn btn-block btn-info btn-sm" id="btnLicense{{ key | safe}}" data-toggle="modal" data-target="#modal-license"' +
+                                'onclick="createModalLicense( \'{{ key | safe}}\', \'{{ value.user_profileName | safe}}\', \'{{ value.user_fullName | safe}}\', \'{{ value.user_licenseNo | safe}}\', \'{{ value.user_verifLicenseSrc | safe}}\' )">License</button></div>';
+                {% endif %}
+
+                var rowContent = "<tr id={{ key | safe }}>" +
+                        "<td>{{ value.user_profileName }}</td>" +
+                        "<td>{{ value.user_fullName }}</td>" +
+                        "<td>{{ value.user_matrixNo }}</td>" +
+                        "<td>" + button + "</td>" +
+                        "</tr>";
+                $('#userVerifTable > tbody').append(rowContent);
+            {% endfor %}
+        }
+
+        function createModalMatrix(uid, profileName, fullName, matrixNo, matrixSrc) {
+            $('#imgMatrix_loading_gif').show();
+            $('#img_matrix').attr('src', matrixSrc);
+            $('#img_matrix').on('load', function(){
+                $('#imgMatrix_loading_gif').hide();
+            });
+            $('#modal_matrix_profileName').html(profileName);
+            $('#modal_matrix_fullName').html(fullName);
+            $('#modal_matrix_matrixNo').html(matrixNo);
+            $('#matrixBtnWrapper').show();
+            $('#verifiedAlertMatrix').hide();
+            $('#rejectedAlertMatrix').hide();
+            $('#btnMatrixReject').val(uid);
+            $('#btnMatrixReject').html("Reject");
+            $('#btnMatrixReject').prop('disabled', false);
+            $('#btnMatrixVerify').val(uid);
+            $('#btnMatrixVerify').html("Verify");
+            $('#btnMatrixVerify').prop('disabled', false);
+
+            $('#btnMatrixReject').click(function () {
+                $(this).html("&nbsp;<img src='static/image/white_loading_gif.gif' width='20px' height='20px'/>&nbsp;")
+                $(this).prop('disabled', true);
+               $.ajax({
+                   url: 'rejectUserMatrix?uid=' + uid,
+                   success: function(result){
+                       if (result == "Success"){
+                           var btn = "#btnMatrix" + uid
+                           $(btn).hide();
+                           $('#matrixBtnWrapper').hide();
+                           $('#rejectedAlertMatrix').show();
+                           checkBothArchived(uid);
+                       }
+                       else {
+                           alert("Error");
+                       }
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert("Status: " + textStatus); alert("Error: " + errorThrown);
+                    }
+               });
+            });
+            $('#btnMatrixVerify').click(function () {
+                $(this).html("&nbsp;<img src='static/image/white_loading_gif.gif' width='20px' height='20px'/>&nbsp;")
+                $(this).prop('disabled', true);
+               $.ajax({
+                   url: 'verifyUserMatrix?uid=' + uid,
+                   success: function(result){
+                       if (result == "Success"){
+                           var btn = "#btnMatrix" + uid
+                           $(btn).hide();
+                           $('#matrixBtnWrapper').hide();
+                           $('#verifiedAlertMatrix').show();
+                           checkBothArchived(uid);
+                       }
+                       else {
+                           alert("Error");
+                       }
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert("Status: " + textStatus); alert("Error: " + errorThrown);
+                    }
+               });
+            });
+        }
+
+        function createModalLicense(uid, profileName, fullName, licenseNo, licenseSrc) {
+            $('#imgLicense_loading_gif').show();
+            $('#img_license').attr('src', licenseSrc);
+            $('#img_license').on('load', function(){
+                $('#imgLicense_loading_gif').hide();
+            });
+            $('#modal_license_profileName').html(profileName);
+            $('#modal_license_fullName').html(fullName);
+            $('#modal_license_licenseNo').html(licenseNo);
+            $('#licenseBtnWrapper').show();
+            $('#verifiedAlertLicense').hide();
+            $('#rejectedAlertLicense').hide();
+            $('#btnLicenseReject').val(uid);
+            $('#btnLicenseReject').html("Reject");
+            $('#btnLicenseReject').prop('disabled', false);
+            $('#btnLicenseVerify').val(uid);
+            $('#btnLicenseVerify').html("Verify");
+            $('#btnLicenseVerify').prop('disabled', false);
+            $('#btnLicenseReject').click(function () {
+                $(this).html("&nbsp;<img src='static/image/white_loading_gif.gif' width='20px' height='20px'/>&nbsp;")
+                $(this).prop('disabled', true);
+                $.ajax({
+                    url: 'rejectUserLicense?uid=' + uid,
+                    success: function(result){
+                        if (result == "Success"){
+                            var btn = "#btnLicense" + uid
+                            $(btn).hide();
+                            $('#licenseBtnWrapper').hide();
+                            $('#rejectedAlertLicense').show();
+                            checkBothArchived(uid);
+                        }
+                        else {
+                           alert("Error");
+                        }
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert("Status: " + textStatus); alert("Error: " + errorThrown);
+                    }
+                });
+            });
+            $('#btnLicenseVerify').click(function () {
+                $(this).html("&nbsp;<img src='static/image/white_loading_gif.gif' width='20px' height='20px'/>&nbsp;")
+                $(this).prop('disabled', true);
+                $.ajax({
+                    url: 'verifyUserLicense?uid=' + uid,
+                    success: function(result){
+                        if (result == "Success"){
+                            var btn = "#btnLicense" + uid
+                            $(btn).hide();
+                            $('#licenseBtnWrapper').hide();
+                            $('#verifiedAlertLicense').show();
+                            checkBothArchived(uid);
+                        }
+                        else {
+                           alert("Error");
+                        }
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert("Status: " + textStatus); alert("Error: " + errorThrown);
+                    }
+                });
+            });
+        }
+
+        function checkBothArchived(uid) {
+            var btnMatrix = "#btnMatrix" + uid;
+            var btnLicense = "#btnLicense" + uid;
+            if(($(btnMatrix).length == 0 || $(btnMatrix).is(":hidden")) &&  ($(btnLicense).length == 0 || $(btnLicense).is(":hidden"))){
+                var row = "table#userVerifTable >tbody tr#" + uid;
+                $(row).remove();
+                if($('#userVerifTable tbody tr').length == 0){
+                    var rowContent = "<tr ><td valign='top' colspan='4' class='dataTables_empty'>No data available in table</td></tr>";
+                    $('#userVerifTable > tbody').append(rowContent);
+                }
+            }
+        }
+    </script>
+{% endblock pageJs %}
+
+

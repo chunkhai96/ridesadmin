@@ -1,0 +1,101 @@
+{% extends "baseFrame.html" %}
+{% block content %}
+    <!-- Main content -->
+    <section class="content">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box">
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <table id="userTable" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th hidden>User Id</th>
+                                    <th>Profile Name</th>
+                                    <th>Full Name</th>
+                                    <th>Matrix/Staff Number</th>
+                                    <th>License Number</th>
+                                    <th>Telephone Number</th>
+                                    <th>Email Address</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-content">
+
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+    </section>
+    <!-- /.content -->
+{% endblock content %}
+
+{% block pageJs %}
+    <script>
+        initList();
+        $(document).ready(function() {
+            $('#bigTitle').html("User<small>({{ users | length }} total users)</small>");
+            document.title = 'RideS Admin | User Verification'
+            $( "#sideUserVerification" ).removeClass( "active" );
+            $( "#sideDashboard" ).removeClass( "active" );
+            $( "#sideUser" ).addClass( "active" );
+            $( "#sideRide" ).removeClass( "active" );
+        });
+
+        $(function () {
+            $('#example1').DataTable()
+            $('#userTable').DataTable({
+              'paging'      : true,
+              'lengthChange': true,
+              'searching'   : true,
+              'ordering'    : true,
+              'info'        : true,
+              'autoWidth'   : false
+            });
+        });
+
+        function initList(){
+            {% for key, value in users.items %}
+                var rowContent = "<tr id={{ key | safe }}>" +
+                        "<td hidden>{{ key | safe }}</td>"+
+                        "<td>{{ value.user_profileName }}</td>";
+
+                {% if  value.user_verifMatrixStatus != None and value.user_verifMatrixStatus  == 2 %}
+                    rowContent += "<td>{{ value.user_fullName }}</td>" +
+                        "<td>{{ value.user_matrixNo }}</td>";
+                {% else %}
+                    rowContent += "<td><p class=\"text-yellow\">Unverified</p></td>" +
+                        "<td><p class=\"text-yellow\">Unverified</p></td>";
+                {% endif %}
+
+                {% if  value.user_verifLicenseStatus != None and value.user_verifMatrixStatus  == 2 %}
+                    rowContent += "<td>{{ value.user_licenseNo }}</td>";
+                {% else %}
+                    rowContent += "<td><p class=\"text-yellow\">Unverified</p></td>";
+                {% endif %}
+
+                rowContent += "<td>{{ value.user_phoneNo }}</td>" +
+                        "<td>{{ value.user_email }}</td>"+
+                        "<td>" +
+                        "<button type=\"button\" class=\"btn btn-block btn-info btn-sm\" onclick=\"viewUser(\'{{ key | safe }}\')\"> View </button>" +
+                        "</td>" +
+                        "</tr>";
+
+                $('#userTable > tbody').append(rowContent);
+            {% endfor %}
+        }
+
+        function viewUser(uid){
+            var url = 'userDetail?uid=' + uid;
+            window.location.href = url;
+        }
+    </script>
+{% endblock pageJs %}
+
+

@@ -1,0 +1,331 @@
+{% extends "baseFrame.html" %}
+{% block content %}
+{% load staticfiles %}
+    <style>
+        .text-button {
+            border: none;
+            background: inherit;
+            cursor: pointer;
+            color: darkgrey;
+            outline: none;
+        }
+        .text-button:hover {
+            color: black;
+        }
+
+        .passengerImg{
+            opacity: 1;
+            transition: .5s ease;
+            backface-visibility: hidden;
+        }
+
+        .passengerImg:hover {
+            opacity: 0.5;
+        }
+    </style>
+    <!-- Main content -->
+    <section class="content">
+        <div class="row">
+
+            <div class="col-md-3">
+                <!-- Ride Info Box -->
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Ride Info
+                        </h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+
+                        <strong><i class="fa fa-user margin-r-5"></i> Provider</strong>
+
+                        <p class="text-muted">
+                            {{ providerProfileName }}
+                        </p>
+
+                        <hr>
+
+                        <strong><i class="fa fa-circle-o margin-r-5"></i> From</strong>
+
+                        <p class="text-muted">
+                            {{ rideDetail.pr_fromPlace }}<br>
+                            {{ rideDetail.pr_fromAddress }}
+                        </p>
+
+                        <hr>
+
+                        <strong><i class="fa fa-map-marker margin-r-5"></i> To</strong>
+
+                        <p class="text-muted">
+                            {{ rideDetail.pr_toPlace }}<br>
+                            {{ rideDetail.pr_toAddress }}
+                        </p>
+
+                        <hr>
+
+                        <strong><i class="fa  fa-calendar margin-r-5"></i> Depart Time</strong>
+
+                        <p class="text-muted">
+                            {{ rideDetail.departDatetime }}
+                        </p>
+
+                        <hr>
+
+                        <strong><i class="fa fa-calendar-plus-o margin-r-5"></i> Created on</strong>
+
+                        <p class="text-muted">
+                            {{ rideDetail.createDatetime }}
+                        </p>
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+
+            <div class="col-md-9">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="box box-default">
+                            <div class="box-header with-border">
+                                <h3 class="box-title">Vehicle</h3>
+                                <div class="box-tools pull-right">
+                                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="box-body">
+                                <div class="row" style="padding-top: 10px; padding-bottom: 10px;">
+                                    <div class="col-md-6">
+                                        <img src="{{ vehicle.vehicle_imageSrc }}" class='center-block' id="img_vehicle" style="max-width: 100%; max-height: 100%;">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p style="font-size: 28px">{{ rideDetail.pr_vehicleId }}</p>
+                                        <p class="text-muted">
+                                            {{ vehicle.vehicle_model }} &bull;
+                                            {{ vehicle.vehicle_color }} &bull;
+                                            {{ vehicle.vehicle_capacity }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <!-- USERS LIST -->
+                        <div class="box box-success">
+                            <div class="box-header with-border">
+                                <h3 class="box-title">Passenger</h3>
+
+                                <div class="box-tools pull-right">
+                                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- /.box-header -->
+                            <div class="box-body no-padding">
+                                <ul class="users-list clearfix">
+                                    <li>
+                                        <a href="javascript:void(0)" onclick="initTracking('{{ rideId }}', '{{ rideDetail.pr_providerUid }}')">
+                                            <img class="passengerImg" style="border: 3px solid #00a65a; padding: 3px;"
+                                                {% if providerProfilePicSrc == "" or None  %}
+                                                    src="{% static 'image/img_default_profile_pic.png' %}"
+                                                {% else %}
+                                                    src="{{ providerProfilePicSrc }}"
+                                                {% endif %}
+                                                 title="Track position" alt="User Image">
+                                        </a>
+                                        <a class="users-list-name" href="javascript:void(0)" title="Provider"
+                                           onclick="viewUser('{{ rideDetail.pr_providerUid }}')">
+                                            {{ providerProfileName }}
+                                        </a>
+                                        <span class="users-list-date">
+                                            {% if rideDetail.pr_status == 1 %}
+                                                <span class="label label-info">Open</span>
+                                            {% elif rideDetail.pr_status == 2 %}
+                                                <span class="label label-default">Canceled</span>
+                                            {% elif rideDetail.pr_status == 5 %}
+                                                <span class="label label-success">Completed</span>
+                                            {% endif %}
+                                        </span>
+                                    </li>
+                                    {% if sharedRides %}
+                                        {% for key, value in sharedRides.items %}
+                                            <li>
+                                                <a href="javascript:void(0)" onclick="initTracking('{{ rideId }}', '{{ value.rs_carpoolerUid }}')">
+                                                    <img class="passengerImg"
+                                                        {% if value.carpoolerProfilePicSrc == "" or None  %}
+                                                            src="{% static 'image/img_default_profile_pic.png' %}"
+                                                        {% else %}
+                                                            src="{{ value.carpoolerProfilePicSrc }}"
+                                                         {% endif %}
+                                                         title="Track position" alt="User Image">
+                                                </a>
+                                                <a class="users-list-name" href="javascript:void(0)" title="Carpooler"
+                                                   onclick="viewUser('{{ value.rs_carpoolerUid }}')">
+                                                    {{ value.carpoolerProfileName }}
+                                                </a>
+                                                <span class="users-list-date">
+                                                    {% if value.rs_status == 3 %}
+                                                        <small class="label label-info">Accepted</small>
+                                                    {% elif value.rs_status == 5 %}
+                                                        <small class="label label-success">Completed</small>
+                                                    {% endif %}
+                                                </span>
+                                            </li>
+                                        {% endfor %}
+                                    {% endif %}
+                                </ul>
+                                <!-- /.users-list -->
+                            </div>
+                            <!-- /.box-body -->
+                        </div>
+                        <!--/.box -->
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="box box-solid">
+                        <div class="box-body no-padding" style="height: 300px;">
+                            <div id="map" style="height: 100%;"></div>
+                        </div>
+                    </div>
+                        </div>
+
+                    <div class="col-md-6">
+                        <!-- DIRECT CHAT -->
+                        <div class="box box-warning direct-chat direct-chat-warning">
+                            <div class="box-header with-border">
+                                <h3 class="box-title">Ride discussion</h3>
+
+                                <div class="box-tools pull-right">
+                                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- /.box-header -->
+                            <div class="box-body">
+                                <!-- Conversations are loaded here -->
+                                <div id="rideDiscussion" class="direct-chat-messages" style="height: 250px">
+
+                                </div>
+                                <!--/.direct-chat-messages-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Tracking -->
+        <div class="modal fade" id="modal-tracking">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title">Tracking</h4>
+                    </div>
+                    <div class="modal-body no-padding" style="height: 400px;">
+                        <div id="mapTracking" style="height: 100%;"></div>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <!-- /.modal -->
+    </section>
+    <!-- /.content -->
+
+{% endblock content %}
+
+{% block pageJs %}
+
+    <script>
+        $(document).ready(function() {
+            document.title = 'RideS Admin | Ride Detail'
+            $( "#sideUserVerification" ).removeClass( "active" );
+            $( "#sideDashboard" ).removeClass( "active" );
+            $( "#sideUser" ).removeClass( "active" );
+            $( "#sideRide" ).addClass( "active" );
+            initDiscussion();
+        });
+        var map;
+        function initMap() {
+            var fromLatLng = new google.maps.LatLng({{ rideDetail.pr_fromLatitude }}, {{ rideDetail.pr_fromLongitude }});
+            var toLatLng = new google.maps.LatLng({{ rideDetail.pr_toLatitude }}, {{ rideDetail.pr_toLongitude }});
+            var bounds = new google.maps.LatLngBounds();
+            bounds.extend(fromLatLng);
+            bounds.extend(toLatLng);
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: bounds.getCenter()
+            });
+            map.fitBounds(bounds)
+            var fromMarker = new google.maps.Marker({
+                position: fromLatLng,
+                icon: 'static/image/ic_drive.png',
+                map: map,
+                title: "Drive from",
+                animation: google.maps.Animation.DROP
+            });
+            var toMarker = new google.maps.Marker({
+                position: toLatLng,
+                map: map,
+                title: "Destination",
+                animation: google.maps.Animation.DROP
+            });
+        }
+
+        function initTracking(rideId, uid){
+            url = "positionTracking?rideId=" + rideId + "&uid=" + uid;
+            window.open(url, "", "height=500,width=900");
+        }
+
+        function initDiscussion() {
+            var previousRideId = 0;
+            var chats = {{ rideDiscussions | safe }};
+            var content = "";
+            if(jQuery.isEmptyObject(chats)){
+                content = "<span class='text-muted'>No discussion history</span>";
+            }
+            else {
+                jQuery.each(chats, function (key, val) {
+                    content += "<div class=\"direct-chat-msg\">\n";
+                    if (val.disc_sender != previousRideId) {
+                        content += "<div class=\"direct-chat-info clearfix\">\n" +
+                            "<span class=\"direct-chat-name pull-left\">" + val.senderProfileName + "</span>\n" +
+                            "</div>\n" +
+                            "<img class=\"direct-chat-img\"";
+                        if(val.senderProfilePicSrc == ""){
+                            content += "src=\"{% static 'image/img_default_profile_pic.png' %}\"";
+                        }
+                        else{
+                            content += "src=\"" + val.senderProfilePicSrc + "\"";
+                        }
+                        content += "\" alt=\"message user image\"> \n";
+                    }
+                    content += "<div class=\"direct-chat-text\">\n" +
+                        val.disc_content +
+                        "<div class=\"direct-chat-info clearfix\">\n" +
+                        "<span class=\"direct-chat-timestamp pull-right\">" + val.msgDatetime + "</span>\n" +
+                        "</div>\n" +
+                        "</div>\n" +
+                        "</div>\n";
+
+                });
+            }
+            $("#rideDiscussion").html(content);
+            $("#rideDiscussion").animate({scrollTop: $("#rideDiscussion")[0].scrollHeight}, 1000);
+        }
+
+        function viewUser(uid) {
+            var url = 'userDetail?uid=' + uid;
+            window.location.href = url;
+        }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtR9CsyJmTcuV9aTXaX03FcZByWgLOweA&callback=initMap"
+    async defer></script>
+
+{% endblock pageJs %}

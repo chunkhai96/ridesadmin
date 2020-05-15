@@ -1,0 +1,157 @@
+{% extends "baseFrame.html" %}
+{% block content %}
+<!-- Main content -->
+<section class="content" url="hello">
+  <!-- Small boxes (Stat box) -->
+  <div class="row">
+    <div class="col-lg-3 col-xs-6">
+      <!-- small box -->
+      <div class="small-box bg-aqua">
+        <div class="inner">
+          <h3>{{ todayNewUsers }}</h3>
+
+          <p>New Users</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-person-add"></i>
+        </div>
+        <a href="user" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-3 col-xs-6">
+      <!-- small box -->
+      <div class="small-box bg-green">
+        <div class="inner">
+          <h3>{{ todayNewUserVerification }}</h3>
+
+          <p>Pending User Verification</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-person-stalker"></i>
+        </div>
+        <a href="userverification" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-3 col-xs-6">
+      <!-- small box -->
+      <div class="small-box bg-yellow">
+        <div class="inner">
+          <h3>{{ todayCreatedRides }}</h3>
+
+          <p>Rides Created</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-android-car"></i>
+        </div>
+        <a href="ride" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+      </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-3 col-xs-6">
+      <!-- small box -->
+      <div class="small-box bg-red">
+        <div class="inner">
+          <h3>{{ todayCompletedRides }}</h3>
+
+          <p>Rides Completed</p>
+        </div>
+        <div class="icon">
+          <i class="ion ion-android-done-all"></i>
+        </div>
+        <a href="ride" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+      </div>
+    </div>
+    <!-- ./col -->
+  </div>
+  <!-- /.row -->
+  <!-- Main row -->
+  <div class="row">
+    <!-- Left col -->
+    <section class="col-lg-6 connectedSortable">
+      <!-- AREA CHART -->
+      <div class="box box-primary">
+        <div class="box-header with-border">
+          <h3 class="box-title">Rides Created</h3>
+        </div>
+        <div class="box-body chart-responsive">
+          <div class="chart" id="rides-number-chart" style="height: 300px;"></div>
+        </div>
+        <!-- /.box-body -->
+      </div>
+      <!-- /.box -->
+    </section>
+    <!-- /.Left col -->
+    <!-- right col (We are only adding the ID to make the widgets sortable)-->
+    <section class="col-lg-6 connectedSortable">
+      <!-- solid sales graph -->
+      <div class="box box-solid bg-olive">
+        <div class="box-header">
+          <i class="fa fa-user"></i>
+          <h3 class="box-title">RideS Users</h3>
+        </div>
+        <div class="box-body border-radius-none">
+          <div class="chart" id="line-chart" style="height: 300px;"></div>
+        </div>
+        <!-- /.box-body -->
+      </div>
+      <!-- /.box -->
+    </section>
+    <!-- right col -->
+  </div>
+  <!-- /.row (main row) -->
+
+</section>
+<!-- /.content -->
+{% endblock content %}
+
+{% block pageJs %}
+<script>
+    $('#bigTitle').html("Dashboard");
+    document.title = 'RideS Admin | Dashboard'
+    $( "#sideDashboard" ).addClass( "active" );
+    $( "#sideUser" ).removeClass( "active" );
+    $( "#sideRide" ).removeClass( "active" );
+    $( "#sideUserVerification" ).removeClass( "active" );
+
+    $(function () {
+        "use strict";
+
+        // AREA CHART
+        var area = new Morris.Area({
+            element: 'rides-number-chart',
+            resize: true,
+            data: [
+                {% for key, val in latestSixMonthSummary.items %}
+                    {y: "{{ key }}", item1: {{ val.0 }}, item2: {{ val.1 }}},
+                {% endfor %}
+            ],
+            xkey: 'y',
+            ykeys: ['item1', 'item2'],
+            labels: ['Completed', 'Incomplete'],
+            lineColors: ['#81c784', '#ff8a65'],
+            hideHover: 'auto'
+        });
+
+    // LINE CHART
+        var line = new Morris.Line({
+            element: 'line-chart',
+            resize: true,
+            data: [
+                {% for key, val in latestSixMonthSummary.items %}
+                    {y: "{{ key }}", item1: {{val.2}}},
+                {% endfor %}
+            ],
+            xkey: 'y',
+            ykeys: ['item1'],
+            labels: ['Total users'],
+            gridTextColor: ['#ffffff'],
+            lineColors: ['#A9A9A9'],
+            hideHover: 'auto'
+        });
+  });
+</script>
+{% endblock pageJs %}
+
+
